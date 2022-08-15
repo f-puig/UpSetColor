@@ -401,9 +401,9 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
 
   # Make plots
   fig_bottom <- ggplot2::ggplot() +
-    ggplot2::geom_rect(data = df_sets, ggplot2::aes(xmin = -Inf, xmax = +Inf),
+    ggplot2::geom_rect(data = df_sets, ggplot2::aes(xmin = -Inf, xmax = +Inf, fill = color),
                                   ymin = df_sets$ymin, ymax = df_sets$ymax,
-                                  fill = df_sets$color, show.legend = FALSE) +
+                                  show.legend = FALSE) +
     ggplot2::scale_fill_manual(breaks = c("1", "2"),
                       values = color.stripes) +
     ggplot2::coord_cartesian(xlim = c(0, nrow(df_comb_size)+1)) +
@@ -451,7 +451,7 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
   df_comb_size$color.bar <- factor(color.bar.comb)
 
   fig_top <- ggplot2::ggplot(data = df_comb_size, ggplot2::aes(x = as.numeric(combination), y = comb_size)) +
-    ggplot2::geom_bar(stat = "identity", width = 0.7, ggplot2::aes(fill = df_comb_size$color.bar), show.legend = FALSE) +
+    ggplot2::geom_bar(stat = "identity", width = 0.7, ggplot2::aes(fill = color.bar), show.legend = FALSE) +
     ggplot2::scale_fill_manual(values = levels(df_comb_size$color.bar)) +
     ggplot2::scale_x_continuous(limits = c(0,(nrow(df_comb_size)+1 )),
                        expand = c(0,0),
@@ -507,7 +507,7 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
   df_sets$color_sets <- factor(df_sets$color_sets)
 
   fig_right <- ggplot2::ggplot(data = df_sets, ggplot2::aes(x = as.numeric(sets),
-                                          y = sizes, fill = df_sets$color_sets)) +
+                                          y = sizes, fill = color_sets)) +
     ggplot2::geom_bar(stat = "identity", width = 0.5, show.legend = FALSE) +
     ggplot2::scale_fill_manual(values = levels(df_sets$color_sets)) +
     ggplot2::theme_minimal() +
