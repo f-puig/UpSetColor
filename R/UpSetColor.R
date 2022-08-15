@@ -532,12 +532,13 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
     ) +
     ggplot2::coord_flip()
 
+  void <-  ggplot2::ggplot() +
+    ggplot2::annotate("text", x = 1, y = 1, label = "") +
+    ggplot2::theme_void() +
+    ggplot2::theme(plot.margin= ggplot2::margin(5.5, 5.5, 0, 0))
+
   if(result == 'plot'){
 
-    void <-  ggplot2::ggplot() +
-      ggplot2::annotate("text", x = 1, y = 1, label = "") +
-      ggplot2::theme_void() +
-      ggplot2::theme(plot.margin= ggplot2::margin(5.5, 5.5, 0, 0))
     xx <- egg::ggarrange(fig_top, void, fig_bottom, fig_right,
                          ncol = 2, nrow = 2,
                          heights = heights, widths = widths)
