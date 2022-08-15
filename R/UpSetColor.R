@@ -539,7 +539,7 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
 
   if(result == 'plot'){
 
-    xx <- egg::ggarrange(fig_top, void, fig_bottom, fig_right,
+    egg::ggarrange(fig_top, void, fig_bottom, fig_right,
                          ncol = 2, nrow = 2,
                          heights = heights, widths = widths)
 
@@ -547,7 +547,6 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
       start_end_time <- Sys.time()
       print(start_end_time -start_ini_time)
     }
-    return(xx)
 
   } else if (result == "list.plot") { # Return a list with all the plots
     xx <- list()
