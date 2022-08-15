@@ -1,0 +1,13 @@
+Package: UpSetColor
+Title: Visualization of Intersecting Sets with Colored Highlights
+Version: 0.0.0.9000
+Imports: ggplot2, egg
+Authors@R: 
+    person(given = "Francesc", family = "Puig",
+    email = "puig.francesc@gmail.com", role = "cre")
+Depends:
+    R (>= 4.0.0)
+Description: Creates easily customisable UpSet plots.
+License: MIT + file LICENSE
+Encoding: UTF-8
+RoxygenNote: 7.1.2
