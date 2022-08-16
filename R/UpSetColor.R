@@ -4,7 +4,8 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
                       comb_order = NULL,
                       min_set_size = NULL, top_n_sets = NULL, min_comb_degree = NULL, max_comb_degree = NULL,
                       min_comb_size = NULL, max_comb_size = NULL, top_comb = NULL,
-                      color.1 = 'black', color.0='#cfcfcf',
+                      fill.1 = 'black', pch = 21,
+                      fill.0='#cfcfcf', color.line.shape = '#A9A9A9',
                       comb_highlight = NULL, color.highlight = 'red',
                       numbers.size= NULL, size.line = 0.5, size.dot = 3,
                       color.bar.sets = 'black', color.bar.comb = 'black',
@@ -35,8 +36,10 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
   #' @param min_comb_size The minimum number of elements in the set combination. Set combinations below this number will not be shown in the UpSet plot.
   #' @param max_comb_size The maximum number of elements in the set combination. Set combinations above this number will not be shown in the UpSet plot.
   #' @param top_comb The number of element combinations to display in the combination bar plot (top) and the matrix plot (bottom left). The default is 20. To display all combinations, this argument must be set at 2^length(data)-1 (if data is a list) or 2^ncol(data)-1 (if data is a binary matrix or data frame).
-  #' @param color.1 String with the colors used to color the dots involved in every set combination. It must be of the same size as the number of displayed combinations in the upper plot, or be of length 1. If NULL, dots will be colored in black.
-  #' @param color.0 String with the color used to color the dots not involved in the set combinations. It is of length 1. Default is "#cfcfcf".
+  #' @param fill.1 String with the colors used to color the dots involved in every set combination. It must be of the same size as the number of displayed combinations in the upper plot, or be of length 1. If NULL, dots will be colored in black.
+  #' @param pch Integer with the dot shape. To display a dot outline, use a value between 21 and 25.
+  #' @param color.line.shape Color used for the dot online. It must be of length 1.
+  #' @param fill.0 String with the color used to color the dots not involved in the set combinations. It is of length 1. Default is "#cfcfcf".
   #' @param comb_highlight The bar positions in the combination bar plot (top) that will be highlighted. The involved Sets will also be highlighted in the other plots. If NULL, none of the set combinations is highlighted.
   #' @param color.highlight Optional. Color used to highlight the set combinations. The default is red.
   #' @param numbers.size The font size for the bar labels in the combination plot (top). If NULL (default), the bar labels will not be displayed.
@@ -56,7 +59,7 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
   #' @param title.hjust Parameter for horizontal adjustment of the main title. The default is 0.5.
   #' @param heights Plot heights in the layout. The default is c(0.35, 0.65).
   #' @param widths Plot widths in the layout. The default is c(0.7,0.3).
-  #' @param color.stripes The two colors used to fill the rectangles in the background. The default is c("#FFFFFF", "#F0F0F0")
+  #' @param color.stripes The colors used to fill the rectangles in the background. The default is c("#FFFFFF", "#F0F0F0")
   #' @param verbose If TRUE, a progress bar and the spent time are shown.
   #' @return A plot (if results = 'plot'), a list of ggplot objects (if results = 'list.plot') or a list of data.frames (if result = 'list.data').
   #' @examples
@@ -85,36 +88,6 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
     }
     bin <- append(n %% 2, bin)
     return(bin)
-  }
-
-  if(!is.null(min_comb_degree) && !is_integer(min_comb_degree)){
-    if(min_comb_degree < 1){
-      stop("'min_comb_degree' must be NULL or a positive integer.")
-    }
-    stop("'min_comb_degree' must be NULL or a positive integer.")
-  }
-
-  if(!is.null(max_comb_degree) && !is_integer(max_comb_degree)){
-    if(max_comb_degree < 1){
-      stop("'max_comb_degree' must be NULL or a positive integer.")
-    }
-    stop("'max_comb_degree' must be NULL or a positive integer.")
-  }
-
-  if(!is.null(min_comb_size) && !is_integer(min_comb_size)){
-    if(min_comb_size < 1){
-      stop("'min_comb_size' must be NULL or a positive integer.")
-    }
-    stop("'min_comb_size' must be NULL or a positive integer.")
-  }
-
-  if(!is.null(max_comb_size) && !is_integer(max_comb_size)){
-    if(max_comb_size < 1){
-      stop("'max_comb_size' must be NULL or a positive integer.")
-    } else if(max_comb_size > length(data)){
-      stop("'max_comb_size' cannot exceed the number of sets.")
-    }
-    stop("'max_comb_size' must be NULL or a positive integer.")
   }
 
   # Check input data
@@ -214,6 +187,41 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
     pieceBar <- floor(iter/80)
   }
 
+
+  if(!is.null(min_comb_degree) && !is_integer(min_comb_degree)){
+    if(min_comb_degree < 1){
+      stop("'min_comb_degree' must be NULL or a positive integer.")
+    }
+    stop("'min_comb_degree' must be NULL or a positive integer.")
+  } else {
+    min_comb_degree <- 0
+  }
+
+  if(!is.null(max_comb_degree) && !is_integer(max_comb_degree)){
+    if(max_comb_degree < 1){
+      stop("'max_comb_degree' must be NULL or a positive integer.")
+    }
+    stop("'max_comb_degree' must be NULL or a positive integer.")
+  } else {
+    max_comb_degree <- length(data)
+  }
+
+  if(!is.null(min_comb_size) && !is_integer(min_comb_size)){
+    if(min_comb_size < 1){
+      stop("'min_comb_size' must be NULL or a positive integer.")
+    }
+    stop("'min_comb_size' must be NULL or a positive integer.")
+  }
+
+  if(!is.null(max_comb_size) && !is_integer(max_comb_size)){
+    if(max_comb_size < 1){
+      stop("'max_comb_size' must be NULL or a positive integer.")
+    } else if(max_comb_size > length(data)){
+      stop("'max_comb_size' cannot exceed the number of sets.")
+    }
+    stop("'max_comb_size' must be NULL or a positive integer.")
+  }
+
   # Calculate the combinations
   comb_size <- vector()
   comb_degree <- vector()
@@ -230,6 +238,9 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
     }
 
     ibin <- which(dec2bin(i) == 1) # Find which are 1
+    if(length(ibin) < min_comb_degree || length(ibin) > max_comb_degree){
+      next
+    }
     comb_degree[i] <- length(ibin)
     sets <- append(sets, names_data[ibin])
     combination <- append(combination, rep(i, length(ibin)))
@@ -355,7 +366,7 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
   nr <- nrow(df_sets)
   df_sets$ymin <- c(1:nr)-0.5
   df_sets$ymax <- c(1:nr)+0.5
-  df_sets$color <- factor(c(c(1:nr %% 2) + 1),levels = c(1,2))
+  df_sets$color <- color.stripes[(c(1:nr %% length(color.stripes)) + 1)]
 
   # Make lines
   perms <- as.character(df_comb_size$combination)
@@ -369,23 +380,23 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
   df_comb_size$start <- factor(levels(df_sets$sets)[start], levels = levels(df_sets$sets))
   df_comb_size$end <- factor(levels(df_sets$sets)[end], levels = levels(df_sets$sets))
 
-  if(length(color.1) == 1){
-    color.1 <- rep(color.1, top_comb)
-  } else if (is.null(color.1)){
-    color.1 <- rep('black', top_comb)
-  } else if(length(color.1) != top_comb){
-    stop("'color.1' should be of length 1 or equal to top_comb.")
+  if(length(fill.1) == 1){
+    fill.1 <- rep(fill.1, top_comb)
+  } else if (is.null(fill.1)){
+    fill.1 <- rep('black', top_comb)
+  } else if(length(fill.1) != top_comb){
+    stop("'fill.1' should be of length 1 or equal to top_comb.")
   }
 
   if(!is.null(color.highlight) && !is.null(comb_highlight)){
     to_high <- as.character(df_comb_size$combination[comb_highlight])
-    color.1[df_comb_size$combination %in% to_high] <- rep(color.highlight,
+    fill.1[df_comb_size$combination %in% to_high] <- rep(color.highlight,
                                                           length(comb_highlight))
     to_high_set <- df_combination$sets[which(df_combination$combination %in% to_high)]
   }
 
-  df_comb_size$color.1 <- factor(color.1) # Color line in matrix plot
-  df_combination$color.1 <- color.1[match(df_combination$combination, df_comb_size$combination)]
+  df_comb_size$fill.1 <- factor(fill.1) # Color line in matrix plot
+  df_combination$fill.1 <- fill.1[match(df_combination$combination, df_comb_size$combination)]
 
   # Make empty points
   df_empty <- data.frame(combination = rep(levels(df_combination$combination),
@@ -393,31 +404,50 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
                          sets = rep(levels(df_combination$sets),
                                     length(levels(df_combination$combination))))
   df_combination <- merge(df_empty, df_combination, all = TRUE)
-  df_combination$color.1[is.na(df_combination$color.1)] <-color.0
+  df_combination$fill.1[is.na(df_combination$fill.1)] <-fill.0
   df_combination$sets <- factor(df_combination$sets, levels = levels(df_sets$sets))
   df_combination$combination <- factor(df_combination$combination, levels = levels(df_comb_size$combination))
-  df_combination$color.1 <- factor(df_combination$color.1,
-                                   levels = c(levels(df_comb_size$color.1),color.0))
+  df_combination$fill.1 <- factor(df_combination$fill.1,
+                                   levels = c(levels(df_comb_size$fill.1),fill.0))
 
   # Make plots
-  fig_bottom <- ggplot2::ggplot() +
-    ggplot2::geom_rect(data = df_sets, ggplot2::aes(xmin = -Inf, xmax = +Inf, fill = color),
-                                  ymin = df_sets$ymin, ymax = df_sets$ymax,
-                                  show.legend = FALSE) +
-    ggplot2::scale_fill_manual(breaks = c("1", "2"),
-                      values = color.stripes) +
-    ggplot2::coord_cartesian(xlim = c(0, nrow(df_comb_size)+1)) +
-    ggplot2::geom_point(data = df_combination, ggplot2::aes(x = as.numeric(combination),
-                                          y = as.numeric(sets),
-                                          color = color.1),
-               size = size.dot, show.legend = FALSE) +
-    ggplot2::geom_segment(data = df_comb_size, ggplot2::aes(x = as.numeric(combination),
-                                          xend = as.numeric(combination),
-                                          y = as.numeric(start), yend = as.numeric(end),
-                                          color = color.1),
-                 size = size.line, show.legend = FALSE) +
-    ggplot2::scale_color_manual(breaks = levels(df_combination$color.1),
-                       values = levels(df_combination$color.1)) +
+  fig_bottom <- ggplot2::ggplot()
+
+  for(i in 1:nrow(df_sets)){
+
+    fig_bottom <-  fig_bottom + ggplot2::geom_rect(data = df_sets[i,],
+                                                   ggplot2::aes(xmin = -Inf, xmax = +Inf,
+                                                   ymin = ymin, ymax = ymax),
+                                                   fill = df_sets$color[i])
+  }
+
+    fig_bottom <- fig_bottom +
+      ggplot2::coord_cartesian(xlim = c(0, nrow(df_comb_size)+1))
+
+    fig_bottom <- fig_bottom +
+      ggplot2::geom_point(data = df_combination,
+                          ggplot2::aes(x = as.numeric(combination),
+                                       y = as.numeric(sets),
+                                       fill = fill.1),
+                          size = size.dot,
+                          color = color.line.shape,
+                          pch = pch,
+                          show.legend = FALSE) +
+      ggplot2::scale_fill_manual(breaks = levels(df_combination$fill.1),
+                                 values = levels(df_combination$fill.1))
+
+  for(i in 1:nrow(df_comb_size)){
+
+    fig_bottom <- fig_bottom + ggplot2::geom_segment(data = df_comb_size[i,],
+                                                     ggplot2::aes(x = as.numeric(combination),
+                                                                  xend = as.numeric(combination),
+                                                                  y = as.numeric(start),
+                                                                  yend = as.numeric(end)),
+                                                     color = as.character(df_comb_size$fill.1[i]),
+                                                     size = size.line, show.legend = FALSE)
+  }
+
+  fig_bottom <- fig_bottom +
     ggplot2::theme_minimal() +
     ggplot2::labs(y = title.matrix.y) +
     ggplot2::scale_y_continuous(labels = levels(df_combination$sets),
