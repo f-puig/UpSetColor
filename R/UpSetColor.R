@@ -1,26 +1,26 @@
 UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
-                      result = c('plot','list')[1],
-                      set_order = c('decreasing','increasing','as.given', 'as.given.reverse')[2],
-                      comb_order = NULL,
-                      min_set_size = NULL, top_n_sets = NULL, min_comb_degree = NULL, max_comb_degree = NULL,
-                      min_comb_size = NULL, max_comb_size = NULL, top_comb = NULL,
-                      fill.1 = 'black', pch = 21,
-                      fill.0='#cfcfcf', color.line.shape = '#A9A9A9',
-                      comb_highlight = NULL, color.highlight = 'red',
-                      numbers.size= NULL, size.line = 0.5, size.dot = 3,
-                      color.bar.sets = 'black', color.bar.comb = 'black',
-                      plot.title.size = 14,
-                      size.comb.axis.y = 8, size.matrix.axis.y = 8, size.Set.axis.x = 8,
-                      title.plot = 'Upset Plot',
-                      title.comb.axis.y = 'Number of elements',
-                      title.Set.axis.x = 'Set size',
-                      title.matrix.y = 'Sets',
-                      scale.Set.y.log10 = FALSE, title.hjust = 0.5,
-                      heights = c(0.35, 0.65), widths = c(0.7,0.3),
-                      color.stripes = c("#FFFFFF", "#F0F0F0"),
-                      verbose = FALSE)
+                       result = c('plot','list')[1],
+                       set_order = c('decreasing','increasing','as.given', 'as.given.reverse')[2],
+                       comb_order = NULL,
+                       min_set_size = NULL, top_n_sets = NULL, min_comb_degree = NULL, max_comb_degree = NULL,
+                       min_comb_size = NULL, max_comb_size = NULL, top_comb = NULL,
+                       fill.1 = 'black', pch = 21,
+                       fill.0='#cfcfcf', color.line.shape = '#A9A9A9',
+                       comb_highlight = NULL, color.highlight = 'red',
+                       numbers.size= NULL, size.line = 0.5, size.dot = 3,
+                       color.bar.sets = 'black', color.bar.comb = 'black',
+                       plot.title.size = 14,
+                       size.comb.axis.y = 8, size.matrix.axis.y = 8, size.Set.axis.x = 8,
+                       title.plot = 'Upset Plot',
+                       title.comb.axis.y = 'Number of elements',
+                       title.Set.axis.x = 'Set size',
+                       title.matrix.y = 'Sets',
+                       scale.Set.y.log10 = FALSE, title.hjust = 0.5,
+                       heights = c(0.35, 0.65), widths = c(0.7,0.3),
+                       color.stripes = c("#FFFFFF", "#F0F0F0"),
+                       verbose = FALSE)
 {
-
+  
   #' UpSetColor - Visualization of intersecting sets with colored highlights
   #'
   #' Make the UpSet plot.
@@ -71,16 +71,16 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
   #' @export
   #'
   #'
-
+  
   if(verbose){
     start_ini_time <- Sys.time()
     progress_bar = utils::txtProgressBar(min=0, max=80, style = 3, char = "=")
   }
-
+  
   is_integer <- function(x){
     return(min(abs(c(x%%1, x%%1-1))) < 1e-5)
   }
-
+  
   dec2bin <- function(n) {
     bin <- vector()
     if(n > 1) {
@@ -89,18 +89,18 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
     bin <- append(n %% 2, bin)
     return(bin)
   }
-
+  
   # Check input data
   if(is.matrix(data) || is.data.frame(data)){
-
+    
     if(!(all(unique(unlist(data)) %in% c(0,1)))){
       stop("'data' provided is neither a binary matrix nor a binary data frame. 'data' should contain only 0 and 1 values.")
     }
-
+    
     if(is.null(ncol(data))){
       colnames(data) <- 1:ncol(data)
     }
-
+    
     data_list <- list()
     for(i in 1:ncol(data)){
       data_list[[colnames(data)[i] ]] <- which(data[,i] != 0)
@@ -108,26 +108,26 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
     data <- data_list
     rm(data_list)
   }
-
+  
   if(!is.list(data)){
     stop("'data' provided is neither a binary matrix, nor a binary data frame, nor a list.")
   }
-
+  
   if(!(mode %in% c('union','intersect','distinct'))){
     stop("'mode' must be 'union','intersect', or 'distinct'.")
   }
-
+  
   if(!(result %in% c('plot','list.plot', 'list.data'))){
     stop("'result' must be 'plot', 'list.plot', or 'list.data'.")
   }
-
+  
   # Extract original set names
   if(is.null(names(data))){
     original_names <- 1:length(data)
   } else {
     original_names <- names(data)
   }
-
+  
   # Filter lists if desired
   if(!is.null(min_set_size)){
     lengths_data <- lengths(data)
@@ -138,13 +138,13 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
     }
     rm(lengths_data,pos)
   }
-
+  
   if(!is.null(top_n_sets)){
-
+    
     if(!is_integer(top_n_sets) || top_n_sets < 1){
       stop("'top_n_sets' should be a positive integer.")
     }
-
+    
     lengths_data <- lengths(data)
     pos <- order(lengths_data, decreasing = TRUE)[1:top_n_sets]
     pos <- rev(setdiff(1:length(data),pos))
@@ -153,7 +153,7 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
     }
     rm(lengths_data,pos)
   }
-
+  
   if(is.null(comb_order) && is.null(top_comb)){
     if(length(data) < 4) {
       top_comb <- 2^length(data)-1
@@ -166,91 +166,93 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
   } else if (!is.null(top_comb) && is.null(comb_order)) {
     comb_order <- 1:top_comb
   }
-
+  
   if(length(comb_order) != top_comb){
     stop("'comb_order' should be NULL or should have the same length as top_comb.")
   }
-
+  
   if(!(set_order %in% c('decreasing','increasing','as.given', 'as.given.reverse'))){
     stop("'set_order' must be 'decreasing','increasing', 'as.given' or 'as.given.reverse'.")
   }
-
+  
   iter <- 2^(length(data))-1
-
+  
   if(is.null(names(data))){
     names_data <- 1:length(data)
   } else {
     names_data <- names(data)
   }
-
+  
   if(verbose){
     pieceBar <- floor(iter/80)
   }
-
-
+  
+  
   if(!is.null(min_comb_degree) && !is_integer(min_comb_degree)){
     if(min_comb_degree < 1){
       stop("'min_comb_degree' must be NULL or a positive integer.")
     }
     stop("'min_comb_degree' must be NULL or a positive integer.")
-  } else {
+  } else if(is.null(min_comb_degree)){
     min_comb_degree <- 0
   }
-
+  
   if(!is.null(max_comb_degree) && !is_integer(max_comb_degree)){
     if(max_comb_degree < 1){
       stop("'max_comb_degree' must be NULL or a positive integer.")
     }
     stop("'max_comb_degree' must be NULL or a positive integer.")
-  } else {
+  } else if(is.null(max_comb_degree)){
     max_comb_degree <- length(data)
   }
-
+  
   if(!is.null(min_comb_size) && !is_integer(min_comb_size)){
     if(min_comb_size < 1){
       stop("'min_comb_size' must be NULL or a positive integer.")
     }
     stop("'min_comb_size' must be NULL or a positive integer.")
   }
-
+  
   if(!is.null(max_comb_size) && !is_integer(max_comb_size)){
     if(max_comb_size < 1){
       stop("'max_comb_size' must be NULL or a positive integer.")
-    } else if(max_comb_size > length(data)){
-      stop("'max_comb_size' cannot exceed the number of sets.")
+    } else if(max_comb_size > length(unique(unlist(data)))){
+      stop("'max_comb_size' cannot exceed the number of unique elements across all sets.")
     }
     stop("'max_comb_size' must be NULL or a positive integer.")
   }
-
+  
   # Calculate the combinations
   comb_size <- vector()
   comb_degree <- vector()
-  sets <- combination <- vector()
+  it <- sets <- combination <- vector()
   for(i in 1:iter){
-
+    
     # To check that the code progresses
     if(verbose){
-
+      
       if(i %% 2*pieceBar == 0){
         utils::setTxtProgressBar(progress_bar, value = i/pieceBar)
       }
-
+      
     }
-
+    
     ibin <- which(dec2bin(i) == 1) # Find which are 1
     if(length(ibin) < min_comb_degree || length(ibin) > max_comb_degree){
       next
     }
-    comb_degree[i] <- length(ibin)
+    
+    it <- append(it,i) # The iteration number
+    comb_degree <- append(comb_degree,length(ibin))
     sets <- append(sets, names_data[ibin])
     combination <- append(combination, rep(i, length(ibin)))
-
+    
     if(mode == 'union'){
       x_list <- vector()
       for(j in 1:length(ibin)){
         x_list <- append(x_list, data[[ ibin[j] ]])
       }
-      comb_size[i] <- length(unique(x_list))
+      comb_size <- append(comb_size, length(unique(x_list)))
     } else if(mode == 'intersect'){
       for(j in 1:length(ibin)){
         if(j == 1){
@@ -259,7 +261,7 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
           x_list <- intersect(x_list, data[[ ibin[j] ]])
         }
       }
-      comb_size[i] <- length(unique(x_list))
+      comb_size <- append(comb_size, length(unique(x_list)))
     } else { # Distinct: everything that is in common between 1 and different from what is common in 0.
       x_list <- vector()
       # First determine everything that is common
@@ -267,7 +269,7 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
         if(j == 1){
           x_list <- data[[ ibin[j] ]]
         } else {
-        x_list <- intersect(x_list, data[[ ibin[j] ]])
+          x_list <- intersect(x_list, data[[ ibin[j] ]])
         }
       }
       # Then everything that is missing
@@ -282,19 +284,19 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
             x_list0 <- union(x_list0, data[[ ibin0[j] ]])
           }
         }
-        comb_size[i] <- length(setdiff(x_list,x_list0))
+        comb_size <- append(comb_size, length(setdiff(x_list,x_list0)))
       } else {
-        comb_size[i] <- length(x_list)
+        comb_size <- append(comb_size, length(x_list))
       }
-
+      
     }
   }
-  df_comb_size <- data.frame(combination = 1:iter,
+  df_comb_size <- data.frame(combination = it,
                              comb_degree = comb_degree,
                              comb_size = comb_size)
   df_combination <- data.frame(combination = combination,
                                sets = sets)
-
+  
   # Now filter combinations with min_comb_size and max_comb_size
   if(!is.null(min_comb_size)){
     df_comb_size <- df_comb_size[df_comb_size$comb_size >= min_comb_size,]
@@ -302,7 +304,7 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
   if(!is.null(max_comb_size)){
     df_comb_size <- df_comb_size[df_comb_size$comb_size <= max_comb_size,]
   }
-
+  
   df_comb_size <- df_comb_size[order(df_comb_size$comb_size, decreasing = TRUE),]
   if(nrow(df_comb_size) < top_comb){
     warning("There are less set combinations than 'top_comb'. All set combinations are shown")
@@ -313,7 +315,7 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
   } else {
     df_comb_size <- df_comb_size[1:top_comb,]
   }
-
+  
   if(!is.null(comb_highlight ) && max(comb_highlight) > top_comb){
     if(all(comb_highlight) > max(comb_highlight)){
       comb_highlight <- NULL
@@ -321,7 +323,7 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
       comb_highlight <- comb_highlight[comb_highlight <= top_comb]
     }
   }
-
+  
   if(is.null(comb_order)){
     df_comb_size <- df_comb_size[order(df_comb_size$comb_degree, df_comb_size$combination),]
     df_comb_size$combination <- factor(as.character(df_comb_size$combination),
@@ -330,10 +332,10 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
     df_comb_size$combination <- factor(as.character(df_comb_size$combination),
                                        levels = unique(as.character(df_comb_size$combination))[comb_order])
   }
-
+  
   df_combination <- df_combination[df_combination$combination %in% levels(df_comb_size$combination), ]
   df_combination$combination <- factor(df_combination$combination, levels = levels(df_comb_size$combination))
-
+  
   if(set_order == "as.given"){
     df_combination$sets <- factor(df_combination$sets, levels = unique(df_combination$sets))
     df_sets <- data.frame(sets = unique(df_combination$sets),
@@ -355,25 +357,25 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
     df_sets <- data.frame(sets = factor(sets_kept, levels = levels(df_combination$sets)),
                           sizes = sizes)
   }
-
+  
   # Make rectangle stripes
   nr <- nrow(df_sets)
   df_sets$ymin <- c(1:nr)-0.5
   df_sets$ymax <- c(1:nr)+0.5
   df_sets$color <- color.stripes[(c(1:nr %% length(color.stripes)) + 1)]
-
+  
   # Make lines
   perms <- as.character(df_comb_size$combination)
-
+  
   start <- end <- vector()
   for(i in 1:length(perms)){
     start[i] <- min(as.numeric(df_combination$sets)[df_combination$combination == perms[i]])
     end[i] <- max(as.numeric(df_combination$sets)[df_combination$combination == perms[i]])
   }
-
+  
   df_comb_size$start <- factor(levels(df_sets$sets)[start], levels = levels(df_sets$sets))
   df_comb_size$end <- factor(levels(df_sets$sets)[end], levels = levels(df_sets$sets))
-
+  
   if(length(fill.1) == 1){
     fill.1 <- rep(fill.1, top_comb)
   } else if (is.null(fill.1)){
@@ -381,17 +383,17 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
   } else if(length(fill.1) != top_comb){
     stop("'fill.1' should be of length 1 or equal to top_comb.")
   }
-
+  
   if(!is.null(color.highlight) && !is.null(comb_highlight)){
     to_high <- as.character(df_comb_size$combination[comb_highlight])
     fill.1[df_comb_size$combination %in% to_high] <- rep(color.highlight,
-                                                          length(comb_highlight))
+                                                         length(comb_highlight))
     to_high_set <- df_combination$sets[which(df_combination$combination %in% to_high)]
   }
-
+  
   df_comb_size$fill.1 <- factor(fill.1) # Color line in matrix plot
   df_combination$fill.1 <- fill.1[match(df_combination$combination, df_comb_size$combination)]
-
+  
   # Make empty points
   df_empty <- data.frame(combination = rep(levels(df_combination$combination),
                                            each = length(levels(df_combination$sets))),
@@ -403,35 +405,35 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
   df_combination$combination <- factor(df_combination$combination, levels = levels(df_comb_size$combination))
   df_combination$fill.1 <- factor(df_combination$fill.1,
                                   levels = c(levels(df_comb_size$fill.1),fill.0))
-
+  
   # Make plots
   fig_bottom <- ggplot2::ggplot()
-
+  
   for(i in 1:nrow(df_sets)){
-
+    
     fig_bottom <-  fig_bottom + ggplot2::geom_rect(data = df_sets[i,],
                                                    ggplot2::aes(xmin = -Inf, xmax = +Inf,
-                                                   ymin = ymin, ymax = ymax),
+                                                                ymin = ymin, ymax = ymax),
                                                    fill = df_sets$color[i])
   }
-
-    fig_bottom <- fig_bottom +
-      ggplot2::coord_cartesian(xlim = c(0, nrow(df_comb_size)+1))
-
-    fig_bottom <- fig_bottom +
-      ggplot2::geom_point(data = df_combination,
-                          ggplot2::aes(x = as.numeric(combination),
-                                       y = as.numeric(sets),
-                                       fill = fill.1),
-                          size = size.dot,
-                          color = color.line.shape,
-                          pch = pch,
-                          show.legend = FALSE) +
-      ggplot2::scale_fill_manual(breaks = levels(df_combination$fill.1),
-                                 values = levels(df_combination$fill.1))
-
+  
+  fig_bottom <- fig_bottom +
+    ggplot2::coord_cartesian(xlim = c(0, nrow(df_comb_size)+1))
+  
+  fig_bottom <- fig_bottom +
+    ggplot2::geom_point(data = df_combination,
+                        ggplot2::aes(x = as.numeric(combination),
+                                     y = as.numeric(sets),
+                                     fill = fill.1),
+                        size = size.dot,
+                        color = color.line.shape,
+                        pch = pch,
+                        show.legend = FALSE) +
+    ggplot2::scale_fill_manual(breaks = levels(df_combination$fill.1),
+                               values = levels(df_combination$fill.1))
+  
   for(i in 1:nrow(df_comb_size)){
-
+    
     fig_bottom <- fig_bottom + ggplot2::geom_segment(data = df_comb_size[i,],
                                                      ggplot2::aes(x = as.numeric(combination),
                                                                   xend = as.numeric(combination),
@@ -440,14 +442,14 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
                                                      color = as.character(df_comb_size$fill.1[i]),
                                                      size = size.line, show.legend = FALSE)
   }
-
+  
   fig_bottom <- fig_bottom +
     ggplot2::theme_minimal() +
     ggplot2::labs(y = title.matrix.y) +
     ggplot2::scale_y_continuous(labels = levels(df_combination$sets),
-                       breaks = 1:length(levels(df_combination$sets)),
-                       limits = c(0.5,(nrow(df_sets)+0.5)),
-                       expand = c(0,0)) +
+                                breaks = 1:length(levels(df_combination$sets)),
+                                limits = c(0.5,(nrow(df_sets)+0.5)),
+                                expand = c(0,0)) +
     ggplot2::scale_x_continuous(limits = c(0,(nrow(df_combination)+1)), expand = c(0,0)) +
     ggplot2::theme(
       axis.text.y = ggplot2::element_text(size = size.matrix.axis.y),
@@ -460,8 +462,8 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
       axis.ticks.x= ggplot2::element_blank(),
       panel.border = ggplot2::element_blank()
     )
-
-
+  
+  
   if(length(color.bar.comb) == 1){
     color.bar.comb <- rep(color.bar.comb, top_comb)
   } else if (is.null(color.bar.comb)){
@@ -473,23 +475,23 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
     color.bar.comb[comb_highlight]<- rep(color.highlight, length(comb_highlight))
   }
   df_comb_size$color.bar <- factor(color.bar.comb)
-
+  
   fig_top <- ggplot2::ggplot(data = df_comb_size, ggplot2::aes(x = as.numeric(combination), y = comb_size)) +
     ggplot2::geom_bar(stat = "identity", width = 0.7, ggplot2::aes(fill = color.bar), show.legend = FALSE) +
     ggplot2::scale_fill_manual(values = levels(df_comb_size$color.bar)) +
     ggplot2::scale_x_continuous(limits = c(0,(nrow(df_comb_size)+1 )),
-                       expand = c(0,0),
-                       breaks = NULL) +
+                                expand = c(0,0),
+                                breaks = NULL) +
     ggplot2::theme_minimal() +
     ggplot2::labs(y = title.comb.axis.y,
-         title = if(!is.null(title.plot)){title.plot} else {NULL} ) +
+                  title = if(!is.null(title.plot)){title.plot} else {NULL} ) +
     ggplot2::theme(
       plot.title = ggplot2::element_text(hjust = title.hjust,
-                                size = plot.title.size),
+                                         size = plot.title.size),
       axis.title.y = ggplot2::element_text(size = size.comb.axis.y),
       axis.text.y = ggplot2::element_text(size = size.comb.axis.y-2),
       axis.line =  ggplot2::element_line(colour = "gray0",
-                                size = 0.5, linetype = "solid"),
+                                         size = 0.5, linetype = "solid"),
       plot.margin = ggplot2::margin(5.5, 0, 0, 5.5),
       panel.grid.minor = ggplot2::element_blank(),
       panel.grid.major = ggplot2::element_blank(),
@@ -500,20 +502,20 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
       axis.ticks.y= ggplot2::element_line(size = 0.5),
       panel.border = ggplot2::element_blank()
     )
-
+  
   if(!is.null(numbers.size)){
     fig_top <- fig_top +
       ggplot2::geom_text(ggplot2::aes(label=comb_size), vjust=-0.25, size = numbers.size)
   }
-
+  
   if(scale.Set.y.log10){
     fig_top <- fig_top + ggplot2::scale_y_continuous(trans='log10', expand = c(0,0),
-                                            limits = c(1, max(df_comb_size$comb_size*1.5, na.rm = TRUE)))
+                                                     limits = c(1, max(df_comb_size$comb_size*1.5, na.rm = TRUE)))
   } else {
     fig_top <- fig_top + ggplot2::scale_y_continuous(expand = c(0,0),
-                                            limits =  c(0, max(df_comb_size$comb_size*1.2, na.rm = TRUE)))
+                                                     limits =  c(0, max(df_comb_size$comb_size*1.2, na.rm = TRUE)))
   }
-
+  
   if(length(color.bar.sets) == 1){
     color.bar.sets <- rep(color.bar.sets, length(original_names))
   } else if (is.null(color.bar.sets)){
@@ -521,25 +523,25 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
   } else if(length(color.bar.sets) != length(original_names)){
     stop("'color.bar.sets' should be of length 1 or equal to the original number of sets.")
   }
-
+  
   df_sets$color_sets <- color.bar.sets[match(df_sets$sets, original_names)]
-
+  
   if(!is.null(color.highlight) && !is.null(comb_highlight)){
     df_sets$color_sets[df_sets$sets %in% to_high_set] <- color.highlight
   }
-
+  
   df_sets$color_sets <- factor(df_sets$color_sets)
-
+  
   fig_right <- ggplot2::ggplot(data = df_sets, ggplot2::aes(x = as.numeric(sets),
-                                          y = sizes, fill = color_sets)) +
+                                                            y = sizes, fill = color_sets)) +
     ggplot2::geom_bar(stat = "identity", width = 0.5, show.legend = FALSE) +
     ggplot2::scale_fill_manual(values = levels(df_sets$color_sets)) +
     ggplot2::theme_minimal() +
     ggplot2::labs(y = title.Set.axis.x) +
     ggplot2::scale_y_continuous(expand = c(0,0)) +
     ggplot2::scale_x_continuous(limits = c(0.5,(nrow(df_sets)+0.5)),
-                       expand = c(0,0),
-                       breaks = NULL) +
+                                expand = c(0,0),
+                                breaks = NULL) +
     ggplot2::theme(
       axis.title.x = ggplot2::element_text(size = size.Set.axis.x),
       axis.text.x = ggplot2::element_text(size = size.Set.axis.x-2),
@@ -555,35 +557,35 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
       panel.border = ggplot2::element_blank()
     ) +
     ggplot2::coord_flip()
-
+  
   void <-  ggplot2::ggplot() +
     ggplot2::annotate("text", x = 1, y = 1, label = "") +
     ggplot2::theme_void() +
     ggplot2::theme(plot.margin= ggplot2::margin(5.5, 5.5, 0, 0))
-
+  
   if(result == 'plot'){
-
+    
     egg::ggarrange(fig_top, void, fig_bottom, fig_right,
-                         ncol = 2, nrow = 2,
-                         heights = heights, widths = widths)
-
+                   ncol = 2, nrow = 2,
+                   heights = heights, widths = widths)
+    
     if(verbose){
       start_end_time <- Sys.time()
       print(start_end_time -start_ini_time)
     }
-
+    
   } else if (result == "list.plot") { # Return a list with all the plots
     xx <- list()
     xx[['Comb']] <- fig_top
     xx[['Matrix']] <- fig_bottom
     xx[['Set']] <- fig_right
     xx[['Blank']] <- void
-
+    
     if(verbose){
       start_end_time <- Sys.time()
       print(sprintf("Spent time: %s seconds", (start_ini_time -start_end_time)/1000))
     }
-
+    
     return(xx)
   } else if (result == 'list.data'){
     xx <- list()
