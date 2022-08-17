@@ -295,13 +295,7 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
   df_combination <- data.frame(combination = combination,
                                sets = sets)
 
-  # Now filter set combinations
-  if(!is.null(min_comb_degree)){
-    df_comb_size <- df_comb_size[df_comb_size$comb_degree >= min_comb_degree,]
-  }
-  if(!is.null(max_comb_degree)){
-    df_comb_size <- df_comb_size[df_comb_size$comb_degree <= max_comb_degree,]
-  }
+  # Now filter combinations with min_comb_size and max_comb_size
   if(!is.null(min_comb_size)){
     df_comb_size <- df_comb_size[df_comb_size$comb_size >= min_comb_size,]
   }
@@ -408,7 +402,7 @@ UpSetColor <- function(data, mode = c('union','intersect','distinct')[3],
   df_combination$sets <- factor(df_combination$sets, levels = levels(df_sets$sets))
   df_combination$combination <- factor(df_combination$combination, levels = levels(df_comb_size$combination))
   df_combination$fill.1 <- factor(df_combination$fill.1,
-                                   levels = c(levels(df_comb_size$fill.1),fill.0))
+                                  levels = c(levels(df_comb_size$fill.1),fill.0))
 
   # Make plots
   fig_bottom <- ggplot2::ggplot()
