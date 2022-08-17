@@ -65,17 +65,17 @@ In the __union__ mode, when two sets are connected, the number of counted elemen
 
 ```{r mode}
 # Union mode
-UpSetColor(data = lt, mode = 'union')
+UpSetColor(data = lt, mode = 'union', title.plot = 'UpSet plot - Union mode')
 # Interpretation: There are 20 different letters across the 3 sets.
 # 15 of these letters are in 'c'. 
 
 # Intersect mode
-UpSetColor(data = lt, mode = 'intersect')
+UpSetColor(data = lt, mode = 'intersect', title.plot = 'UpSet plot - Intersect mode')
 # Interpretation: There are 6 letters common between 'b' and 'c': "v" "k" "e" "n" "s" "i"
 # This situation corresponds to: intersect(lt$b, lt$c)
 
 # Distinct mode
-UpSetColor(data = lt, mode = 'distinct')
+UpSetColor(data = lt, mode = 'distinct', title.plot = 'UpSet plot - Distinct mode')
 # Interpretation: There are 4 letters common between 'b' and 'c' and  absent from 'a'.
 # These are: "v" "k" "e" "i"
 # This situation corresponds to: setdiff(intersect(lt$b,lt$c), lt$a)
@@ -89,23 +89,26 @@ UpSetColor(data = lt, mode = 'distinct')
 The arguments to use are **fill.1** for the connected dots, **fill.0** for the unconnected dots, **color.bar.comb** for the bars showing the set combinations, and **color.bar.set** for the bars showing the set sizes.
 
 ```{r color}
-mm3 <- mm[,1:7]
+mm3 <- mm[,1:7] # This time we will compare 7 sets of elements.
 
 ## Coloring the dots and stripes
 UpSetColor(data = mm3, fill.1 = 'red', fill.0 = 'royalblue', color.line.shape = 'white',
-           color.stripes = c('grey0','grey20', 'grey40', 'grey20'))
+           color.stripes = c('grey0','grey20', 'grey40', 'grey20'),
+           title.plot = 'Colored dots and stripes')
 
 
 # Dots are colored from left (so, from the largest combination of elements) to right
 UpSetColor(data = mm3,
            mode = 'intersect',
-           fill.1 = rep(c('cyan3','green','royalblue','orange'), each = 5))
+           fill.1 = rep(c('cyan3','green','royalblue','orange'), each = 5),
+           title.plot = 'Colored dots')
 
 
 ## Coloring the combination bars
 UpSetColor(data = mm3,
            mode = 'intersect',
-           color.bar.comb = 'purple')
+           color.bar.comb = 'purple',
+           title.plot = 'Colored combination bars')
 
 
 ## Coloring bars and dots simultaneously
@@ -113,7 +116,8 @@ UpSetColor(data = mm3,
            comb_order = c(seq(1,20,2),seq(2,20,2)),
            mode = 'intersect',
            color.bar.comb = rep(c('cyan3','green','royalblue','orange'), each = 5),
-           fill.1 = rep(c('cyan3','green','royalblue','orange'), each = 5))
+           fill.1 = rep(c('cyan3','green','royalblue','orange'), each = 5),
+           title.plot = 'Colored dots and combination bars')
 
 
 ## Color sets
@@ -121,7 +125,8 @@ UpSetColor(data = mm3,
 # A-C: cyan, D-F: green, G: orange
 UpSetColor(data = mm3,
            mode = 'intersect',
-           color.bar.sets = c('black','brown','orange','yellow','white','cyan','royalblue'))
+           color.bar.sets = c('black','brown','orange','yellow','white','cyan','royalblue'),
+           title.plot = 'Colored sets')
 
 ```
 ![fig6](figs/fig6.png "fig6")
@@ -136,7 +141,8 @@ In addition, some connections can be highlighted with the **color.highlight** an
 # Highlight (in the example, the 2 largest intersections)
 UpSetColor(data = mm3,
            mode = 'intersect',
-           color.highlight = 'red', comb_highlight = 1:2)
+           color.highlight = 'red', comb_highlight = 1:2,
+           title.plot = 'Highlight of the 1st and 2nd combination')
 
 
 # Notice that highlighted sets will be colored regardless of the information passed in the color.bar.sets argument.
@@ -144,7 +150,8 @@ UpSetColor(data = mm3,
            mode = 'intersect',
            comb_order = c(seq(1,20,2),seq(2,20,2)),
            color.highlight = 'red', comb_highlight = 8,
-           color.bar.sets = c('cyan3','cyan3','cyan3','green','green','green','orange'))
+           color.bar.sets = c('cyan3','cyan3','cyan3','green','green','green','orange'),
+           title.plot = 'Highlight and colored sets')
 
 ```
 ![fig11](figs/fig11.png "fig11")
@@ -156,7 +163,8 @@ The ggplot objects can be exported with **result = 'list.plot'**, allowing furth
 The data frames used for building each of the plots are accessible with **result = 'list.data.'**. 
 ```{r output_list}
 list.data <- UpSetColor(data = mm3, mode = 'intersect', result = 'list.data')
-list.plot <- UpSetColor(data = mm3, mode = 'intersect', result = 'list.plot')
+list.plot <- UpSetColor(data = mm3, mode = 'intersect', result = 'list.plot',
+                        title.plot = 'UpSet with a dashed red line')
 
 # Adding an horizontal red line
 list.plot[['Comb']] <- list.plot[['Comb']] +
